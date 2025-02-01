@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+    <nav>
+      <!-- Navbar links -->
+      <a href="index.html">Home</a> <!-- Home button -->
+      <a href="admin.html" id="dashboardLink">Admin Dashboard</a> <!-- Admin Dashboard button -->
+      <a href="#" id="logout" onclick="logout()">Logout</a> <!-- Logout button -->
+    </nav>
+  </header>
+  
+  <main>
+    <!-- Form untuk menambah berita atau acara baru -->
+    <h2>Tambah News & Event</h2>
+    <form id="addNewsEventForm">
+      <input type="hidden" id="newsEventId" value="">
+      <label for="title">Title:</label>
+      <input type="text" id="title" required>
+      
+      <label for="description">Description:</label>
+      <textarea id="description" required></textarea>
+      
+      <label for="category">Category:</label>
+      <select id="category" required>
+        <option value="news">News</option>
+        <option value="event">Event</option>
+      </select>
+      
+      <label for="eventDate">Event Date:</label>
+      <input type="date" id="eventDate">
+      
+      <label for="image">Image:</label>
+      <input type="file" id="image" accept="image/*">
+      
+      <button type="submit">Submit</button>
+    </form>
+    
+    <!-- Form untuk mengedit berita atau acara -->
+    <h2>Edit News & Event</h2>
+    <form id="editNewsEventForm" style="display: none;">
+      <input type="hidden" id="editNewsEventId">
+      <label for="editTitle">Title:</label>
+      <input type="text" id="editTitle" required>
+      
+      <label for="editDescription">Description:</label>
+      <textarea id="editDescription" required></textarea>
+      
+      <label for="editCategory">Category:</label>
+      <select id="editCategory" required>
+        <option value="news">News</option>
+        <option value="event">Event</option>
+      </select>
+      
+      <label for="editEventDate">Event Date:</label>
+      <input type="date" id="editEventDate">
+      
+      <label for="editImage">Image:</label>
+      <input type="file" id="editImage" accept="image/*">
+      
+      <button type="submit">Update</button>
+      <label for="editImage">Preview:</label>
+      <img id="editImagePreview" src="" alt="Image Preview" style="display: none; max-width: 200px; max-height: 200px;" />
+      
+    </form>
+
+    
+    <h2>Daftar News & Event</h2>
+    <ul id="newsEventList">
+      <!-- Daftar berita dan acara akan ditampilkan di sini -->
+    </ul>
+  </main>
+  
+  <script src="admin.js"></script>
+  <script src="logout.js"></script>
+</body>
+</html>

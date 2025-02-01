@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News & Events</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>Welcome to the News & Events Page</h1>
+    <div id="userLinks"></div> <!-- Menampilkan tombol login atau dashboard tergantung status login -->
+  </header>
+
+  <nav id="navbar" class="navbar" style="display: none;">
+    <!-- Link ke Admin Dashboard dan Logout -->
+    <ul>
+      <a href="index.html">Home</a>
+      <a href="admin.html" id="adminLink" style="display: none;">Admin Dashboard</a>
+      <a href="superadmin.html" id="superadminLink" style="display: none;">Superadmin Dashboard</a>
+      <a href="#" id="logout">Logout</a>
+    </ul>
+  </nav>
+  
+  <main>
+    <h3>Berita & Acara</h3>
+    <ul id="newsEventList"></ul> <!-- Daftar berita dan acara akan ditampilkan di sini -->
+    <div id="errorMessage" style="display: none;"></div> <!-- Pesan error jika gagal load -->
+  </main>
+
+  <!-- Script untuk decoding JWT dan fitur lainnya -->
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+  
+  <!-- Include external JavaScript file -->
+  <script src="index.js"></script>
+  <script src="logout.js"></script>
+
+</body>
+</html>
