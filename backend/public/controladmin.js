@@ -2,7 +2,7 @@
 async function fetchAdmins() {
   const token = localStorage.getItem('token');
 
-  const response = await fetch('http://localhost:5000/api/admins', {
+  const response = await fetch('http://localhost:5001/api/admins', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ document.getElementById('addAdminForm').addEventListener('submit', async (e) => 
 
   const token = localStorage.getItem('token');
 
-  const response = await fetch('http://localhost:5000/api/admin', {
+  const response = await fetch('http://localhost:5001/api/admin', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ document.getElementById('addAdminForm').addEventListener('submit', async (e) => 
 async function editAdmin(adminId) {
   const token = localStorage.getItem('token');
 
-  const response = await fetch(`http://localhost:5000/api/admin/${adminId}`, {
+  const response = await fetch(`http://localhost:5001/api/admin/${adminId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ async function editAdmin(adminId) {
           const updatedUsername = document.getElementById('editUsername').value;
           const updatedEmail = document.getElementById('editEmail').value;
 
-          const updateResponse = await fetch(`http://localhost:5000/api/admin/${adminId}`, {
+          const updateResponse = await fetch(`http://localhost:5001/api/admin/${adminId}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ async function editAdmin(adminId) {
 async function deleteAdmin(adminId) {
   const token = localStorage.getItem('token');
 
-  const response = await fetch(`http://localhost:5000/api/admin/${adminId}`, {
+  const response = await fetch(`http://localhost:5001/api/admin/${adminId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
 
     const token = localStorage.getItem('token');
-    const endpoint = 'http://localhost:5000/api/news-events';
+    const endpoint = 'http://localhost:5001/api/news-events';
     const method = 'POST';
 
     try {
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log([...formData.entries()]); // Debug payload
   
     const token = localStorage.getItem('token');
-    const endpoint = `http://localhost:5000/api/news-events/${id}`;
+    const endpoint = `http://localhost:5001/api/news-events/${id}`;
     const method = 'PUT';
   
     try {
@@ -118,7 +118,7 @@ async function fetchNewsEvents() {
   const newsEventList = document.getElementById('newsEventList');
 
   try {
-    const response = await fetch('http://localhost:5000/api/news-events', {
+    const response = await fetch('http://localhost:5001/api/news-events', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ function editNewsEvent(id) {
   const token = localStorage.getItem('token');
   const editForm = document.getElementById('editNewsEventForm');
   
-  fetch(`http://localhost:5000/api/news-events/${id}`, {
+  fetch(`http://localhost:5001/api/news-events/${id}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -205,10 +205,10 @@ async function deleteNewsEvent(id) {
     return;
   }
 
-  console.log("🔄 Mengirim DELETE request ke:", `http://localhost:5000/api/news-events/${id}`);
+  console.log("🔄 Mengirim DELETE request ke:", `http://localhost:5001/api/news-events/${id}`);
 
   try {
-    const response = await fetch(`http://localhost:5000/api/news-events/${id}`, {
+    const response = await fetch(`http://localhost:5001/api/news-events/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

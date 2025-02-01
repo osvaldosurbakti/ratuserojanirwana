@@ -47,7 +47,7 @@ function decodeToken(token) {
 // Fetch the list of news & events from the server
 async function fetchNewsEvents() {
   try {
-    const response = await fetch('http://localhost:5000/api/news-events', {
+    const response = await fetch('http://localhost:5001/api/news-events', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -17,16 +17,18 @@ import { useEffect, useState } from 'react';
 
 function App() {
   const [data, setData] = useState(null);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/data')
+    axios.get(`${apiUrl}/api/data`)  // Menggunakan apiUrl dari environment variable
       .then(response => {
         setData(response.data);
       })
       .catch(error => {
         console.error('There was an error fetching the data!', error);
       });
-  }, []);
+  }, [apiUrl]);  // Menambahkan apiUrl ke dependensi
+  
 
   return (
     <div>

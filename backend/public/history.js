@@ -3,7 +3,7 @@ async function fetchHistory() {
   const historyList = document.getElementById('historyList');
 
   try {
-    const response = await fetch('http://localhost:5000/api/history', {
+    const response = await fetch('http://localhost:5001/api/history', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

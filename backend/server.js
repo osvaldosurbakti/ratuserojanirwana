@@ -8,7 +8,9 @@ import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import newsEventRoutes from './routes/newsEventRoutes.js';
-import historyRoutes from './routes/historyRoutes.js'; // Import history routes
+import historyRoutes from './routes/historyRoutes.js'; 
+
+const PORT = process.env.PORT || 5001;
 
 // Load environment variables
 dotenv.config();
@@ -44,10 +46,9 @@ const startServer = async () => {
     const __dirname = path.dirname(__filename);
 
     // Serve static files (CSS, JS, etc.)
-    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.static(path.join(__dirname, '../frontend/dist')));
     
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 
     // API Routes
     app.use('/api/auth', authRoutes);
@@ -58,7 +59,7 @@ const startServer = async () => {
 
     // Serve the main HTML file for the root route
     app.get('/', (req, res) => {
-      res.sendFile(path.join(__dirname, './public/index.html'));
+      res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
     });
 
     // Global error handler
@@ -68,7 +69,7 @@ const startServer = async () => {
     });
 
     // Start the server only if the database connection is successful
-    const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => {
       console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     });

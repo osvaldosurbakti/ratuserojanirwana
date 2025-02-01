@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Verifikasi token dengan permintaan API (opsional, tetapi lebih aman)
-  fetch('http://localhost:5000/api/verify-token', {
+  fetch('http://localhost:5001/api/verify-token', {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
 async function fetchAdmins() {
   const token = localStorage.getItem('token');
   
-  const response = await fetch('http://localhost:5000/api/users/admins', {
+  const response = await fetch('http://localhost:5001/api/users/admins', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ document.getElementById('addAdminForm').addEventListener('submit', async (e) => 
   
   const token = localStorage.getItem('token');
 
-  const response = await fetch('http://localhost:5000/api/users/admin', {
+  const response = await fetch('http://localhost:5001/api/users/admin', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ async function editAdmin(adminId) {
   // Ambil data admin berdasarkan adminId dan tampilkan di form (bisa melalui modal atau form edit)
   const token = localStorage.getItem('token');
 
-  const response = await fetch(`http://localhost:5000/api/users/admin/${adminId}`, {
+  const response = await fetch(`http://localhost:5001/api/users/admin/${adminId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ async function editAdmin(adminId) {
       const updatedUsername = document.getElementById('username').value;
       const updatedEmail = document.getElementById('email').value;
 
-      const updateResponse = await fetch(`http://localhost:5000/api/users/admin/${adminId}`, {
+      const updateResponse = await fetch(`http://localhost:5001/api/users/admin/${adminId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ async function editAdmin(adminId) {
 async function deleteAdmin(adminId) {
   const token = localStorage.getItem('token');
   
-  const response = await fetch(`http://localhost:5000/api/users/admin/${adminId}`, {
+  const response = await fetch(`http://localhost:5001/api/users/admin/${adminId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
