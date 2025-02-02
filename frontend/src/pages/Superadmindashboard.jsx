@@ -31,7 +31,7 @@ export default function SuperadminDashboard() {
             <div className="p-4 bg-gray-100 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold">Manajemen Berita & Acara</h3>
               <p className="text-gray-600">Kelola berita dan acara yang ada di sistem.</p>
-              <a href="/admin" className="text-blue-600 hover:underline">Manage News & Events</a>
+              <a href="/admindashboard" className="text-blue-600 hover:underline">Manage News & Events</a>
             </div>
 
             {/* View History */}

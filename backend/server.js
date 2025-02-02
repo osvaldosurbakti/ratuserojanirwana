@@ -1,83 +1,75 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url'; // Fix __dirname issue in ES Module
+import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import axios from 'axios'; 
 import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import newsEventRoutes from './routes/newsEventRoutes.js';
-import historyRoutes from './routes/historyRoutes.js'; 
+import historyRoutes from './routes/historyRoutes.js';
 
-const PORT = process.env.PORT || 5001;
-
-// Load environment variables
 dotenv.config();
 
-// Connect to the database before starting the server
+const PORT = process.env.PORT || 5001;
+const BASE_URL = process.env.BASE_URL || "http://localhost:5001";
+const API_URL = process.env.API_URL || `${BASE_URL}/api`;
+
 const startServer = async () => {
   try {
-    await connectDB(); // Wait for database connection before starting the server
+    await connectDB();
     console.log("✅ Database connected successfully");
 
     const app = express();
 
-    // Middleware for parsing JSON and cookies
     app.use(express.json());
     app.use(cookieParser());
+    app.use(cors({
+      origin: ['http://localhost:3000', 'http://localhost:5173'], // Allow both origins      credentials: true,
+    }));
 
-    // Enable CORS
-    app.use(
-      cors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-        credentials: true,
-      })
-    );
-
-    // Set cache control header
-    app.use((req, res, next) => {
-      res.set('Cache-Control', 'no-store');
-      next();
-    });
-
-    // Fix __dirname for ES Module
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
 
-    // Serve static files (CSS, JS, etc.)
     app.use(express.static(path.join(__dirname, '../frontend/dist')));
-    
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-    // API Routes
-    app.use('/api/auth', authRoutes);
-    app.use('/api/', userRoutes);
-    app.use('/api/news-events', newsEventRoutes);
-    app.use('/api/history', historyRoutes);
-    
-
-    // Serve the main HTML file for the root route
     app.get('/', (req, res) => {
       res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
     });
 
-    // Global error handler
+    app.use('/api/auth', authRoutes);
+    app.use('/api/users', userRoutes);
+    app.use('/api/news-events', newsEventRoutes);
+    app.use('/api/history', historyRoutes);
+
+    app.get('/api/data', async (req, res) => {
+      try {
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+        res.json(response.data);
+      } catch (error) {
+        console.error('❌ Error fetching data:', error.message);
+        res.status(500).json({ message: 'Failed to fetch data' });
+      }
+    });
+    
+
     app.use((err, req, res, next) => {
       console.error('❌ Error:', err.message);
       res.status(err.status || 500).json({ message: err.message || 'Internal Server Error' });
     });
 
-    // Start the server only if the database connection is successful
-    const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => {
       console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     });
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
-    process.exit(1); // Stop the process if DB connection fails
+    process.exit(1);
   }
+  console.log("✅ BASE_URL:", BASE_URL);
+  console.log("✅ API_URL:", API_URL);
 };
 
-// Start the server
 startServer();

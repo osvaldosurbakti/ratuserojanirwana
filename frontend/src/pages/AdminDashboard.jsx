@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AdminDashboard() {
   const [newsEvents, setNewsEvents] = useState([]);
@@ -13,6 +13,24 @@ export default function AdminDashboard() {
 
   const [editMode, setEditMode] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    fetchNewsEvents();
+  }, []);
+
+  const fetchNewsEvents = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/api/news-events", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch");
+      const data = await response.json();
+      setNewsEvents(data);
+    } catch (error) {
+      console.error("Error fetching news events:", error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -30,28 +48,64 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editMode) {
-      setNewsEvents((prev) =>
-        prev.map((item) => (item.id === formData.id ? formData : item))
-      );
-      setEditMode(false);
-    } else {
-      setNewsEvents([...newsEvents, { ...formData, id: Date.now() }]);
+  
+    if (editMode && !formData._id) {
+      console.error("Error: ID is missing in edit mode!");
+      return;
     }
-    setFormData({ id: null, title: "", description: "", category: "news", eventDate: "", image: null });
-    setPreviewImage(null);
+  
+    const form = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) form.append(key, value);
+    });
+  
+    const method = editMode ? "PUT" : "POST";
+    const url = editMode
+      ? `http://localhost:5001/api/news-events/${formData._id}`
+      : "http://localhost:5001/api/news-events";
+  
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+      if (!response.ok) throw new Error("Failed to submit");
+  
+      fetchNewsEvents();
+      setFormData({ _id: null, title: "", description: "", category: "news", eventDate: "", image: null });
+      setPreviewImage(null);
+      setEditMode(false);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
+  
 
   const handleEdit = (item) => {
-    setFormData(item);
+    setFormData({
+      ...item,
+      eventDate: item.eventDate ? new Date(item.eventDate).toISOString().split("T")[0] : "", // Ubah format tanggal
+    });
     setPreviewImage(item.image);
     setEditMode(true);
   };
+  
 
-  const handleDelete = (id) => {
-    setNewsEvents(newsEvents.filter((item) => item.id !== id));
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    try {
+      const response = await fetch(`http://localhost:5001/api/news-events/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to delete");
+      fetchNewsEvents();
+    } catch (error) {
+      console.error("Error deleting news event:", error);
+    }
   };
 
   return (
@@ -66,8 +120,6 @@ export default function AdminDashboard() {
         </h2>
 
         <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded-lg">
-          <input type="hidden" id="id" value={formData.id || ""} />
-
           <label className="block font-medium">Title:</label>
           <input
             type="text"
@@ -117,14 +169,9 @@ export default function AdminDashboard() {
             className="w-full p-2 border rounded-md mb-3"
           />
 
-          {previewImage && (
-            <img src={previewImage} alt="Preview" className="max-w-xs rounded-md mb-3" />
-          )}
+          {previewImage && <img src={previewImage} alt="Preview" className="max-w-xs rounded-md mb-3" />}
 
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
             {editMode ? "Update" : "Submit"}
           </button>
         </form>
@@ -132,27 +179,17 @@ export default function AdminDashboard() {
         <h2 className="text-2xl font-semibold mt-8">Daftar News & Event</h2>
         <ul className="mt-4">
           {newsEvents.map((item) => (
-            <li key={item.id} className="bg-gray-100 p-4 rounded-md shadow-md mb-3 flex justify-between">
+            <li key={item._id} className="bg-gray-100 p-4 rounded-md shadow-md mb-3 flex justify-between">
               <div>
                 <h3 className="text-lg font-semibold">{item.title}</h3>
                 <p>{item.description}</p>
                 <p className="text-sm text-gray-500">Category: {item.category}</p>
                 {item.eventDate && <p className="text-sm">Event Date: {item.eventDate}</p>}
-                {item.image && <img src={URL.createObjectURL(item.image)} alt="" className="max-w-xs mt-2 rounded-md" />}
+                {item.image && <img src={item.image} alt="Event" className="max-w-xs mt-2 rounded-md" />}
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(item)}
-                  className="bg-yellow-500 text-white px-3 py-1 rounded-md"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded-md"
-                >
-                  Delete
-                </button>
+                <button onClick={() => handleEdit(item)} className="bg-yellow-500 text-white px-3 py-1 rounded-md">Edit</button>
+                <button onClick={() => handleDelete(item.id)} className="bg-red-500 text-white px-3 py-1 rounded-md">Delete</button>
               </div>
             </li>
           ))}

@@ -1,17 +1,34 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminHistory() {
   const [history, setHistory] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulasi mengambil data dari API (bisa diganti dengan API backend)
+    // Fetch history data when the component is mounted
     const fetchHistory = async () => {
-      const fakeData = [
-        { id: 1, action: "Admin A menambahkan berita baru", timestamp: "2025-02-01 10:00" },
-        { id: 2, action: "Admin B menghapus acara", timestamp: "2025-02-01 12:30" },
-        { id: 3, action: "Admin C memperbarui berita", timestamp: "2025-02-02 08:15" },
-      ];
-      setHistory(fakeData);
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await fetch('http://localhost:5001/api/history', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const historyData = await response.json();
+        setHistory(historyData);
+      } catch (error) {
+        console.error('Error fetching history:', error);
+        alert('Gagal memuat riwayat. Cek koneksi atau server!');
+      }
     };
 
     fetchHistory();
@@ -19,7 +36,8 @@ export default function AdminHistory() {
 
   const handleLogout = () => {
     alert("Logging out...");
-    // Implementasi logout (hapus token, redirect, dll.)
+    localStorage.removeItem("token"); // Remove token from localStorage
+    navigate("/login"); // Redirect to login page
   };
 
   return (
@@ -45,7 +63,11 @@ export default function AdminHistory() {
               {history.map((item) => (
                 <li key={item.id} className="p-4 bg-gray-100 rounded-lg shadow-md">
                   <p className="font-semibold">{item.action}</p>
-                  <p className="text-sm text-gray-500">{item.timestamp}</p>
+                  <p className="text-sm text-gray-500">{new Date(item.timestamp).toLocaleString()}</p>
+                  <p className="text-sm text-gray-500">
+                    Admin: {item.admin.name || item.admin.username} ({item.admin.email})
+                  </p>
+                  <p className="text-sm text-gray-500">Event: {item.newsEvent.title || 'No Title Available'}</p>
                 </li>
               ))}
             </ul>
