@@ -42,9 +42,6 @@ export default function Login() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <header className="mb-6">
         <h1 className="text-3xl font-bold">Login</h1>
-        <nav>
-          <a href="/" className="text-blue-600">Home</a>
-        </nav>
       </header>
       <main className="bg-white p-6 rounded-lg shadow-md w-80">
         <form onSubmit={handleSubmit} className="space-y-4" id="loginForm">

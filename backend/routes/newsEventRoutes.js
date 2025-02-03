@@ -52,7 +52,19 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-router.delete('/:id', protect, deleteNewsEvent);
+
+router.delete('/:id', protect, deleteNewsEvent, async (req, res) => {
+  try {
+    const deletedNews = await NewsEvent.findByIdAndDelete(id);
+    if (!deletedNews) {
+      return res.status(404).json({ message: "Berita tidak ditemukan" });
+    }
+    res.status(200).json({ message: "Berita berhasil dihapus" });
+  } catch (error) {
+    console.error("Error deleting news event:", error);
+    res.status(500).json({ message: "Terjadi kesalahan pada server" });
+  }
+});
 router.get('/history', protect, getHistory);
 
 export default router;

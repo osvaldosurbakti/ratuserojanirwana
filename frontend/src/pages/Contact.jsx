@@ -25,8 +25,6 @@ function Contact() {
         <p className="text-lg text-center max-w-2xl mx-auto text-gray-700 mb-12">
           We’d love to hear from you! Reach out to us through the form below or use the contact information provided. Let’s stay connected.
         </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Contact Information */}
           <div className="bg-gray-300 shadow-lg rounded-lg p-8">
             <h3 className="text-2xl font-semibold mb-6 text-blue-600">Our Contact Info</h3>
@@ -63,60 +61,6 @@ function Contact() {
               ></iframe>
             </div>
           </div>
-
-          {/* Contact Form */}
-          <form onSubmit={handleSubmit} className="bg-gray-100 shadow-lg rounded-lg p-8">
-            <h3 className="text-2xl font-semibold mb-6 text-blue-600">Send Us a Message</h3>
-
-            <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-              Your Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              autoComplete="username"
-              onChange={handleNameChange}
-              className="w-full p-3 border border-gray-300 rounded-lg mb-6"
-              placeholder=" Enter your name"
-              required
-            />
-
-            <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-              Your Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="username"
-              value={email}
-              onChange={handleEmailChange}
-              className="w-full p-3 border border-gray-300 rounded-lg mb-6"
-              placeholder=" Enter your email"
-              required
-            />
-
-            <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
-              Your Message
-            </label>
-            <textarea
-              id="message"
-              value={message}
-              onChange={handleMessageChange}
-              rows="4"
-              className="w-full p-3 border border-gray-300 rounded-lg mb-6"
-              placeholder=" Write your message here"
-              required
-            ></textarea>
-
-            <button
-              type="submit"
-              className="w-full py-3 bg-blue-600 text-black font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Send Message
-            </button>
-          </form>
-        </div>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 export default function AdminDashboard() {
   const [newsEvents, setNewsEvents] = useState([]);
   const [formData, setFormData] = useState({
-    id: null,
+    _id: null,
     title: "",
     description: "",
     category: "news",
@@ -33,8 +33,8 @@ export default function AdminDashboard() {
   };
 
   const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleImageChange = (e) => {
@@ -89,15 +89,15 @@ export default function AdminDashboard() {
       ...item,
       eventDate: item.eventDate ? new Date(item.eventDate).toISOString().split("T")[0] : "", // Ubah format tanggal
     });
-    setPreviewImage(item.image);
+    setPreviewImage(`http://localhost:5001${item.image}`);
     setEditMode(true);
   };
   
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (_id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
-      const response = await fetch(`http://localhost:5001/api/news-events/${id}`, {
+      const response = await fetch(`http://localhost:5001/api/news-events/${_id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
           <label className="block font-medium">Title:</label>
           <input
             type="text"
-            id="title"
+            name="title"
             value={formData.title}
             onChange={handleInputChange}
             required
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
 
           <label className="block font-medium">Description:</label>
           <textarea
-            id="description"
+            name="description"
             value={formData.description}
             onChange={handleInputChange}
             required
@@ -141,7 +141,7 @@ export default function AdminDashboard() {
 
           <label className="block font-medium">Category:</label>
           <select
-            id="category"
+            name="category"
             value={formData.category}
             onChange={handleInputChange}
             required
@@ -154,7 +154,7 @@ export default function AdminDashboard() {
           <label className="block font-medium">Event Date:</label>
           <input
             type="date"
-            id="eventDate"
+            name="eventDate"
             value={formData.eventDate}
             onChange={handleInputChange}
             className="w-full p-2 border rounded-md mb-3"
@@ -178,22 +178,49 @@ export default function AdminDashboard() {
 
         <h2 className="text-2xl font-semibold mt-8">Daftar News & Event</h2>
         <ul className="mt-4">
-          {newsEvents.map((item) => (
-            <li key={item._id} className="bg-gray-100 p-4 rounded-md shadow-md mb-3 flex justify-between">
-              <div>
-                <h3 className="text-lg font-semibold">{item.title}</h3>
-                <p>{item.description}</p>
-                <p className="text-sm text-gray-500">Category: {item.category}</p>
-                {item.eventDate && <p className="text-sm">Event Date: {item.eventDate}</p>}
-                {item.image && <img src={item.image} alt="Event" className="max-w-xs mt-2 rounded-md" />}
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => handleEdit(item)} className="bg-yellow-500 text-white px-3 py-1 rounded-md">Edit</button>
-                <button onClick={() => handleDelete(item.id)} className="bg-red-500 text-white px-3 py-1 rounded-md">Delete</button>
-              </div>
-            </li>
-          ))}
-        </ul>
+  {newsEvents.map((item) => (
+    <li
+      key={item._id}
+      className="bg-gray-100 p-4 rounded-md shadow-md mb-3 flex justify-between"
+    >
+      <div>
+      <div className="mt-2 flex space-x-2">
+          <button
+            onClick={() => handleEdit(item)}
+            className="bg-yellow-500 text-white px-3 py-1 rounded-md"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => handleDelete(item._id)}
+            className="bg-red-500 text-white px-3 py-1 rounded-md"
+          >
+            Delete
+          </button>
+        </div>
+        <h3 className="text-lg font-semibold">{item.title}</h3>
+        <p>{item.description}</p>
+        <p className="text-sm text-gray-500">
+          Category: {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+        </p>
+        {item.eventDate && (
+          <p className="text-sm">
+            Date: {new Date(item.eventDate).toLocaleDateString()}
+          </p>
+        )}
+        {item.image && (
+          <img
+            src={`http://localhost:5001${item.image}`}
+            alt="Event"
+            className="mt-2 w-full h-40 object-cover rounded-md"
+          />
+        )}
+
+      </div>
+    </li>
+  ))}
+</ul>
+
       </main>
     </div>
   );
