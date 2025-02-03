@@ -37,23 +37,32 @@ router.get('/admin/:id', protect, authorize('superadmin'), async (req, res) => {
 // Route to update an admin by ID (only accessible by superadmin)
 router.put('/admin/:id', protect, authorize('superadmin'), async (req, res) => {
   try {
-    const { name, username, email } = req.body;
-    const updatedAdmin = await User.findByIdAndUpdate(
-      req.params.id,
-      { name, username, email },
-      { new: true }
-    ).select('-password');
+    const { name, username, email, password } = req.body;
     
-    if (!updatedAdmin) {
+    // Cari admin berdasarkan ID
+    let admin = await User.findById(req.params.id);
+    if (!admin) {
       return res.status(404).json({ message: 'Admin not found' });
     }
-    
-    res.status(200).json(updatedAdmin);
+
+    // Update fields yang dikirim dari frontend
+    if (name) admin.name = name;
+    if (username) admin.username = username;
+    if (email) admin.email = email;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      admin.password = await bcrypt.hash(password, salt);
+    }
+
+    await admin.save();
+
+    res.status(200).json({ message: 'Admin updated successfully', admin });
   } catch (error) {
     console.error('Error updating admin:', error);
     res.status(500).json({ message: 'An error occurred while updating the admin' });
   }
 });
+
 
 // Route to delete an admin by ID (only accessible by superadmin)
 router.delete('/admin/:id', protect, authorize('superadmin'), async (req, res) => {
