@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Login() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,8 +23,7 @@ export default function Login() {
 
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.role);
+        login(data.token); // Perbarui AuthContext
         alert("Login berhasil!");
 
         if (data.role === "admin") {
@@ -46,7 +47,9 @@ export default function Login() {
       <main className="bg-white p-6 rounded-lg shadow-md w-80">
         <form onSubmit={handleSubmit} className="space-y-4" id="loginForm">
           <div>
-            <label htmlFor="username" className="block font-medium">Username:</label>
+            <label htmlFor="username" className="block font-medium">
+              Username:
+            </label>
             <input
               type="text"
               id="username"
@@ -58,7 +61,9 @@ export default function Login() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block font-medium">Password:</label>
+            <label htmlFor="password" className="block font-medium">
+              Password:
+            </label>
             <input
               type="password"
               id="password"

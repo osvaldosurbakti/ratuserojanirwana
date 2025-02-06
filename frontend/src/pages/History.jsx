@@ -1,21 +1,25 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { Trash, Edit } from "lucide-react";
 
 export default function AdminHistory() {
   const [history, setHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch history data when the component is mounted
     const fetchHistory = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       try {
-        const response = await fetch('http://localhost:5001/api/history', {
-          method: 'GET',
+        const response = await fetch("http://localhost:5001/api/history", {
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -26,8 +30,10 @@ export default function AdminHistory() {
         const historyData = await response.json();
         setHistory(historyData);
       } catch (error) {
-        console.error('Error fetching history:', error);
-        alert('Gagal memuat riwayat. Cek koneksi atau server!');
+        console.error("Error fetching history:", error);
+        alert("Gagal memuat riwayat. Cek koneksi atau server!");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -35,39 +41,71 @@ export default function AdminHistory() {
   }, []);
 
   const handleLogout = () => {
-    alert("Logging out...");
-    localStorage.removeItem("token"); // Remove token from localStorage
-    navigate("/login"); // Redirect to login page
+    localStorage.removeItem("token");
+    alert("Logout berhasil!");
+    navigate("/login");
   };
+
+  // Filter history based on search query
+  const filteredHistory = history.filter((item) =>
+    item.action.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
-      <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
+      <header className="bg-gray-800 text-white p-4 flex flex-col sm:flex-row justify-between items-center">
         <h1 className="text-xl font-bold">Riwayat Aksi Admin</h1>
-        <nav className="space-x-4">
+        <nav className="mt-2 sm:mt-0 space-x-4">
           <a href="/superadmin" className="hover:underline">Kembali ke Dashboard</a>
           <button onClick={handleLogout} className="hover:underline">Logout</button>
         </nav>
       </header>
+
+      {/* Search Input */}
+      <input
+        type="text"
+        placeholder="Cari aksi..."
+        className="p-2 border rounded-lg mb-4 w-full"
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
 
       {/* Main Content */}
       <main className="mt-6">
         <section className="bg-white p-6 shadow-md rounded-lg">
           <h2 className="text-2xl font-semibold mb-4">Riwayat Admin</h2>
 
-          {history.length === 0 ? (
-            <p className="text-gray-600">Belum ada riwayat aksi.</p>
+          {isLoading ? (
+            <p className="text-gray-600 text-center">Memuat data...</p>
+          ) : filteredHistory.length === 0 ? (
+            <p className="text-gray-600 text-center">Belum ada riwayat aksi.</p>
           ) : (
-            <ul className="space-y-4">
-              {history.map((item) => (
-                <li key={item.id} className="p-4 bg-gray-100 rounded-lg shadow-md">
-                  <p className="font-semibold">{item.action}</p>
-                  <p className="text-sm text-gray-500">{new Date(item.timestamp).toLocaleString()}</p>
-                  <p className="text-sm text-gray-500">
-                    Admin: {item.admin.name || item.admin.username} ({item.admin.email})
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredHistory.map((item, index) => (
+                <li key={item.id || index} className="p-4 bg-gray-100 rounded-lg shadow-md">
+                  <p
+                    className={`font-semibold flex items-center ${
+                      item.action === "Delete" ? "text-red-500" : "text-gray-800"
+                    }`}
+                  >
+                    {item.action === "Delete" ? (
+                      <Trash className="mr-2" />
+                    ) : (
+                      <Edit className="mr-2" />
+                    )}
+                    {item.action}
                   </p>
-                  <p className="text-sm text-gray-500">Event: {item.newsEvent.title || 'No Title Available'}</p>
+                  <p className="text-sm text-gray-500">
+                    {format(new Date(item.timestamp), "dd MMM yyyy, HH:mm")}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Admin: {item.admin?.name || item.admin?.username || "Unknown Admin"} ({
+                      item.admin?.email || "No Email"
+                    })
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Event: {item.newsEvent?.title || "No Title Available"}
+                  </p>
                 </li>
               ))}
             </ul>

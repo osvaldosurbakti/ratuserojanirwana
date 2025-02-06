@@ -1,33 +1,54 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "../context/AuthContext";
 
 function Navbar() {
+  const { user, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    // Cek token di localStorage untuk menentukan status login
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setUserRole(decoded.role);
-      } catch (error) {
-        console.error("Token tidak valid:", error);
-        localStorage.removeItem("token");
-      }
-    }
-  }, []);
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const handleCloseMenu = () => setIsOpen(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setUserRole(null);
-    window.location.reload();
+    logout(); // Memanggil fungsi logout dari context
+    navigate("/login"); // Redirect ke halaman login setelah logout
+  };
+
+  const renderNavLinks = () => {
+    const commonLinks = [
+      { to: "/", text: "Home" },
+      { to: "/about", text: "About" },
+      { to: "/newsevent", text: "News & Event" },
+      { to: "/service", text: "Service" },
+      { to: "/contact", text: "Contact" },
+    ];
+
+    const adminLinks = [{ to: "/admindashboard", text: "Dashboard" }];
+    const superadminLinks = [
+      { to: "/superadmindashboard", text: "Superadmin Dashboard" },
+      { to: "/controladmin", text: "Control Admin" },
+    ];
+
+    let links = [...commonLinks];
+    if (user?.role === "admin") {
+      links = [...links, ...adminLinks];
+    } else if (user?.role === "superadmin") {
+      links = [...links, ...superadminLinks];
+    }
+
+    return links.map((link, index) => (
+      <li key={index}>
+        <Link
+          to={link.to}
+          className="hover:text-yellow-400 transition duration-300"
+          onClick={handleCloseMenu}
+        >
+          {link.text}
+        </Link>
+      </li>
+    ));
   };
 
   return (
@@ -41,20 +62,22 @@ function Navbar() {
           </h1>
 
           <ul className="hidden md:flex space-x-8 font-medium">
-            <li><Link to="/" className="hover:text-yellow-400 transition duration-300">Home</Link></li>
-            <li><Link to="/about" className="hover:text-yellow-400 transition duration-300">About</Link></li>
-            <li><Link to="/newsevent" className="hover:text-yellow-400 transition duration-300">News & Event</Link></li>
-            <li><Link to="/service" className="hover:text-yellow-400 transition duration-300">Service</Link></li>
-            <li><Link to="/contact" className="hover:text-yellow-400 transition duration-300">Contact</Link></li>
-            {userRole ? (
+            {renderNavLinks()}
+            {user ? (
               <li>
-                <button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded-md text-white hover:bg-red-700 transition">
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 px-4 py-2 rounded-md text-white hover:bg-red-700 transition"
+                >
                   Logout
                 </button>
               </li>
             ) : (
               <li>
-                <Link to="/login" className="bg-green-500 px-4 py-2 rounded-md text-white hover:bg-green-700 transition">
+                <Link
+                  to="/login"
+                  className="bg-green-500 px-4 py-2 rounded-md text-white hover:bg-green-700 transition"
+                >
                   Login
                 </Link>
               </li>
@@ -99,33 +122,9 @@ function Navbar() {
           </button>
         </div>
         <ul className="mt-6 space-y-6 px-6 font-medium">
+          {renderNavLinks()}
           <li>
-            <Link to="/" onClick={handleCloseMenu} className="block text-lg hover:text-yellow-400 transition duration-300">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link to="/about" onClick={handleCloseMenu} className="block text-lg hover:text-yellow-400 transition duration-300">
-              About
-            </Link>
-          </li>
-          <li>
-            <Link to="/service" onClick={handleCloseMenu} className="block text-lg hover:text-yellow-400 transition duration-300">
-              Service
-            </Link>
-          </li>
-          <li>
-            <Link to="/newsevent" onClick={handleCloseMenu} className="block text-lg hover:text-yellow-400 transition duration-300">
-              News & Event
-            </Link>
-          </li>
-          <li>
-            <Link to="/contact" onClick={handleCloseMenu} className="block text-lg hover:text-yellow-400 transition duration-300">
-              Contact
-            </Link>
-          </li>
-          <li>
-            {userRole ? (
+            {user ? (
               <button
                 onClick={handleLogout}
                 className="w-full text-left text-lg bg-red-500 px-4 py-2 rounded-md hover:bg-red-700 transition"

@@ -4,8 +4,6 @@ import axios from 'axios';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Header from './components/Header';
-import AdminNavbar from './components/AdminNavbar';
-import SuperadminNavbar from './components/SuperadminNavbar';
 import Home from './pages/Home';
 import About from './pages/About';
 import Service from './pages/Service';
@@ -19,20 +17,19 @@ import Login from './pages/Login';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [role, setRole] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      setIsLoggedIn(true);  // User is logged in if token exists
+      setIsLoggedIn(true);
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');  // Remove the token from localStorage
-    setIsLoggedIn(false);  // Set the login status to false
-    navigate('/login');  // Redirect to login page
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    navigate('/login');
   };
 
   const [data, setData] = useState(null);
@@ -41,7 +38,6 @@ function App() {
 
   useEffect(() => {
     console.log("🔗 API Call URL:", `${BASE_URL}/api/data`);
-
     axios.get(`${BASE_URL}`)
       .then(response => setData(response.data))
       .catch(error => console.error("❌ Error fetching data:", error));
@@ -49,16 +45,7 @@ function App() {
 
   return (
     <div>
-      {isLoggedIn ? (
-        role === "superadmin" ? (
-          <SuperadminNavbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
-        ) : (
-          <AdminNavbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
-        )
-      ) : (
-        <Navbar />
-      )}
-      
+      <Navbar />
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
