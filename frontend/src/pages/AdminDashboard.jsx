@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 
 export default function AdminDashboard() {
   const [newsEvents, setNewsEvents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredNewsEvents, setFilteredNewsEvents] = useState([]);
+  const [filterCategory, setFilterCategory] = useState("");
   const [formData, setFormData] = useState({
     _id: null,
     title: "",
@@ -18,6 +21,16 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchNewsEvents();
   }, []);
+
+useEffect(() => {
+  const filtered = newsEvents.filter((event) => {
+    const matchesSearchTerm = event.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory ? event.category === filterCategory : true;
+    return matchesSearchTerm && matchesCategory;
+  });
+  setFilteredNewsEvents(filtered);
+}, [searchTerm, filterCategory, newsEvents]);
+
 
   const fetchNewsEvents = async () => {
     try {
@@ -50,22 +63,22 @@ export default function AdminDashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (editMode && !formData._id) {
       console.error("Error: ID is missing in edit mode!");
       return;
     }
-  
+
     const form = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (value) form.append(key, value);
     });
-  
+
     const method = editMode ? "PUT" : "POST";
     const url = editMode
       ? `http://localhost:5001/api/news-events/${formData._id}`
       : "http://localhost:5001/api/news-events";
-  
+
     try {
       const response = await fetch(url, {
         method,
@@ -73,7 +86,7 @@ export default function AdminDashboard() {
         body: form,
       });
       if (!response.ok) throw new Error("Failed to submit");
-  
+
       fetchNewsEvents();
       setFormData({ _id: null, title: "", description: "", category: "news", eventDate: "", image: null });
       setPreviewImage(null);
@@ -82,7 +95,6 @@ export default function AdminDashboard() {
       console.error("Error submitting form:", error);
     }
   };
-  
 
   const handleEdit = (item) => {
     setFormData({
@@ -92,7 +104,6 @@ export default function AdminDashboard() {
     setPreviewImage(`http://localhost:5001${item.image}`);
     setEditMode(true);
   };
-  
 
   const handleDelete = async (_id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
@@ -110,118 +121,139 @@ export default function AdminDashboard() {
 
   return (
     <div className="container mx-auto p-6">
-      <header className="bg-gray-800 text-white p-4 flex justify-between">
-        <h1 className="text-xl">Admin Dashboard</h1>
+      <header className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-4 flex justify-between items-center rounded-md shadow-lg">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
       </header>
-
-      <main className="mt-6">
-        <h2 className="text-2xl font-semibold mb-4">
+  
+      <main className="mt-8">
+        <h2 className="text-3xl font-semibold mb-6">
           {editMode ? "Edit News & Event" : "Tambah News & Event"}
         </h2>
-
-        <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded-lg">
-          <label className="block font-medium">Title:</label>
+  
+        <form onSubmit={handleSubmit} className="bg-white p-8 shadow-xl rounded-lg">
+          <label className="block font-medium mb-2 text-lg">Title:</label>
           <input
             type="text"
             name="title"
             value={formData.title}
             onChange={handleInputChange}
             required
-            className="w-full p-2 border rounded-md mb-3"
+            className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-
-          <label className="block font-medium">Description:</label>
+  
+          <label className="block font-medium mb-2 text-lg">Description:</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleInputChange}
             required
-            className="w-full p-2 border rounded-md mb-3"
+            className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-
-          <label className="block font-medium">Category:</label>
+  
+          <label className="block font-medium mb-2 text-lg">Category:</label>
           <select
             name="category"
             value={formData.category}
             onChange={handleInputChange}
             required
-            className="w-full p-2 border rounded-md mb-3"
+            className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="news">News</option>
             <option value="event">Event</option>
           </select>
-
-          <label className="block font-medium">Event Date:</label>
+  
+          <label className="block font-medium mb-2 text-lg">Event Date:</label>
           <input
             type="date"
             name="eventDate"
             value={formData.eventDate}
             onChange={handleInputChange}
-            className="w-full p-2 border rounded-md mb-3"
+            className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-
-          <label className="block font-medium">Image:</label>
+  
+          <label className="block font-medium mb-2 text-lg">Image:</label>
           <input
             type="file"
             id="image"
             accept="image/*"
             onChange={handleImageChange}
-            className="w-full p-2 border rounded-md mb-3"
+            className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-
-          {previewImage && <img src={previewImage} alt="Preview" className="max-w-xs rounded-md mb-3" />}
-
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+  
+          {previewImage && (
+            <img src={previewImage} alt="Preview" className="max-w-xs rounded-lg mb-4" />
+          )}
+  
+          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300">
             {editMode ? "Update" : "Submit"}
           </button>
         </form>
-
-        <h2 className="text-2xl font-semibold mt-8">Daftar News & Event</h2>
-        <ul className="mt-4">
-  {newsEvents.map((item) => (
-    <li
-      key={item._id}
-      className="bg-gray-100 p-4 rounded-md shadow-md mb-3 flex justify-between"
-    >
-      <div>
-      <div className="mt-2 flex space-x-2">
-          <button
-            onClick={() => handleEdit(item)}
-            className="bg-yellow-500 text-white px-3 py-1 rounded-md"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => handleDelete(item._id)}
-            className="bg-red-500 text-white px-3 py-1 rounded-md"
-          >
-            Delete
-          </button>
-        </div>
-        <h3 className="text-lg font-semibold">{item.title}</h3>
-        <p>{item.description}</p>
-        <p className="text-sm text-gray-500">
-          Category: {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
-        </p>
-        {item.eventDate && (
-          <p className="text-sm">
-            Date: {new Date(item.eventDate).toLocaleDateString()}
-          </p>
-        )}
-        {item.image && (
-          <img
-            src={`http://localhost:5001${item.image}`}
-            alt="Event"
-            className="mt-2 w-full h-40 object-cover rounded-md"
+  
+        <h2 className="text-3xl font-semibold mt-12">Daftar News & Event</h2>
+        <div className="mt-6 mb-4 flex justify-between">
+          <input
+            type="text"
+            placeholder="Search news/events..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
           />
-        )}
-
-      </div>
-    </li>
-  ))}
-</ul>
-
+  
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ml-4"
+          >
+            <option value="">All</option>
+            <option value="news">News</option>
+            <option value="event">Event</option>
+          </select>
+        </div>
+  
+        <ul className="space-y-4">
+          {filteredNewsEvents.map((item) => (
+            <li
+              key={item._id}
+              className="bg-white p-6 rounded-lg shadow-md flex justify-between items-center"
+            >
+              <div>
+                <h3 className="text-xl font-semibold">{item.title}</h3>
+                <p className="text-gray-600">{item.description}</p>
+                <p className="text-sm text-gray-500">
+                  Category: {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+                </p>
+                {item.eventDate && (
+                  <p className="text-sm text-gray-500">
+                    Date: {new Date(item.eventDate).toLocaleDateString()}
+                  </p>
+                )}
+                {item.image && (
+                  <img
+                    src={`http://localhost:5001${item.image}`}
+                    alt="Event"
+                    className="mt-2 w-full h-40 object-cover rounded-lg"
+                  />
+                )}
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleEdit(item)}
+                  className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-300"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(item._id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       </main>
     </div>
   );
+  
 }
