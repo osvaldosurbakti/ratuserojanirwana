@@ -23,7 +23,7 @@ export default function Login() {
 
       const data = await response.json();
       if (response.ok) {
-        login(data.token); // Perbarui AuthContext
+        login(data.token);
         alert("Login berhasil!");
 
         if (data.role === "admin") {
@@ -40,15 +40,18 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold">Login</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+      <header className="mb-4">
+        <h1 className="text-4xl font-extrabold text-blue-700 drop-shadow-lg">
+          Selamat Datang
+        </h1>
+        <p className="text-lg text-gray-600">Silakan login untuk melanjutkan</p>
       </header>
-      <main className="bg-white p-6 rounded-lg shadow-md w-80">
-        <form onSubmit={handleSubmit} className="space-y-4" id="loginForm">
+      <main className="bg-white p-8 rounded-xl shadow-lg w-96 transform transition duration-300 hover:scale-105 hover:shadow-2xl">
+        <form onSubmit={handleSubmit} className="space-y-6" id="loginForm">
           <div>
-            <label htmlFor="username" className="block font-medium">
-              Username:
+            <label htmlFor="username" className="block font-semibold text-gray-700">
+              Username
             </label>
             <input
               type="text"
@@ -57,12 +60,12 @@ export default function Login() {
               value={formData.username}
               onChange={handleChange}
               required
-              className="w-full p-2 border rounded-md"
+              className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block font-medium">
-              Password:
+            <label htmlFor="password" className="block font-semibold text-gray-700">
+              Password
             </label>
             <input
               type="password"
@@ -71,13 +74,15 @@ export default function Login() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full p-2 border rounded-md"
+              className="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />
           </div>
-          {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+          {errorMessage && (
+            <p className="text-red-500 text-sm font-medium">{errorMessage}</p>
+          )}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold transition duration-300 hover:bg-blue-700 hover:shadow-md"
           >
             Login
           </button>

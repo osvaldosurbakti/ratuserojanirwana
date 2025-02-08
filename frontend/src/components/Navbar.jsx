@@ -52,63 +52,69 @@ function Navbar() {
           <ul className="hidden md:flex space-x-6 font-medium items-center">
             {renderNavLinks()}
 
-            {user && (user.role === "admin" || user.role === "superadmin") && (
-              <li className="relative group">
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center space-x-2 hover:text-yellow-400 transition duration-300"
-                >
-                  <span>Dashboard</span>
-                  <FaChevronDown className="transition transform group-hover:rotate-180" />
-                </button>
-                {dropdownOpen && (
-                  <ul className="absolute left-0 mt-2 bg-white text-black rounded-md shadow-lg w-48">
-                    {user.role === "admin" && (
-                      <li>
-                        <Link
-                          to="/admindashboard"
-                          className="block px-4 py-2 hover:bg-gray-200"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          Admin Dashboard
-                        </Link>
-                      </li>
-                    )}
-                    {user.role === "superadmin" && (
-                      <>
-                        <li>
-                          <Link
-                            to="/superadmindashboard"
-                            className="block px-4 py-2 hover:bg-gray-200"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            Superadmin Dashboard
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            to="/controladmin"
-                            className="block px-4 py-2 hover:bg-gray-200"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            Control Admin
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            to="/history"
-                            className="block px-4 py-2 hover:bg-gray-200"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            History Admin
-                          </Link>
-                        </li>
-                      </>
-                    )}
-                  </ul>
-                )}
-              </li>
-            )}
+            {user && user.role === "admin" && (
+  <li>
+    <Link
+      to="/admindashboard"
+      className="block px-4 py-2 hover:text-yellow-400 transition duration-300"
+      onClick={() => setDropdownOpen(false)}
+    >
+      Admin Dashboard
+    </Link>
+  </li>
+)}
+
+{user && user.role === "superadmin" && (
+  <li className="relative group">
+    <button
+      onClick={() => setDropdownOpen(!dropdownOpen)}
+      className="flex items-center space-x-2 hover:text-yellow-400 transition duration-300"
+    >
+      <span>Dashboard</span>
+      <FaChevronDown className="transition transform group-hover:rotate-180" />
+    </button>
+    {dropdownOpen && (
+      <ul className="absolute left-0 mt-2 bg-white text-black rounded-md shadow-lg w-48">
+        <li>
+          <Link
+            to="/superadmindashboard"
+            className="block px-4 py-2 hover:bg-gray-200"
+            onClick={() => setDropdownOpen(false)}
+          >
+            Superadmin Dashboard
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/controladmin"
+            className="block px-4 py-2 hover:bg-gray-200"
+            onClick={() => setDropdownOpen(false)}
+          >
+            Control Admin
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/admindashboard"
+            className="block px-4 py-2 hover:bg-gray-200"
+            onClick={() => setDropdownOpen(false)}
+          >
+            Manage News & Events
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/history"
+            className="block px-4 py-2 hover:bg-gray-200"
+            onClick={() => setDropdownOpen(false)}
+          >
+            History Admin
+          </Link>
+        </li>
+      </ul>
+    )}
+  </li>
+)}
 
             {user ? (
               <li>
