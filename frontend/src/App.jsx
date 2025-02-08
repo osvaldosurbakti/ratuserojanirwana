@@ -35,10 +35,8 @@ function App() {
 
   const [data, setData] = useState(null);
   const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
-  console.log("🔗 VITE_API_URL:", import.meta.env.VITE_API_URL);
 
   useEffect(() => {
-    console.log("🔗 API Call URL:", `${BASE_URL}/api/data`);
     axios.get(`${BASE_URL}`)
       .then(response => setData(response.data))
       .catch(error => console.error("❌ Error fetching data:", error));
