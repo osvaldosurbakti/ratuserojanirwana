@@ -10,7 +10,6 @@ export default function AdminHistory() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch history data when the component is mounted
     const fetchHistory = async () => {
       const token = localStorage.getItem("token");
 
@@ -46,7 +45,6 @@ export default function AdminHistory() {
     navigate("/login");
   };
 
-  // Filter history based on search query
   const filteredHistory = history.filter((item) =>
     item.action.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -54,21 +52,33 @@ export default function AdminHistory() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
-      <header className="bg-gray-800 text-white p-4 flex flex-col sm:flex-row justify-between items-center">
+      <header className="bg-gray-800 text-white p-4 flex flex-col sm:flex-row justify-between items-center rounded-md shadow-lg">
         <h1 className="text-xl font-bold">Riwayat Aksi Admin</h1>
         <nav className="mt-2 sm:mt-0 space-x-4">
-          <a href="/superadmin" className="hover:underline">Kembali ke Dashboard</a>
-          <button onClick={handleLogout} className="hover:underline">Logout</button>
+          <a
+            href="/superadmin"
+            className="hover:text-blue-300 transition duration-300"
+          >
+            Kembali ke Dashboard
+          </a>
+          <button
+            onClick={handleLogout}
+            className="hover:text-blue-300 transition duration-300"
+          >
+            Logout
+          </button>
         </nav>
       </header>
 
       {/* Search Input */}
-      <input
-        type="text"
-        placeholder="Cari aksi..."
-        className="p-2 border rounded-lg mb-4 w-full"
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+      <div className="mt-4 flex flex-col sm:flex-row gap-4 items-center">
+        <input
+          type="text"
+          placeholder="Cari aksi..."
+          className="p-2 w-full sm:w-1/2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
       {/* Main Content */}
       <main className="mt-6">
@@ -78,17 +88,24 @@ export default function AdminHistory() {
           {isLoading ? (
             <p className="text-gray-600 text-center">Memuat data...</p>
           ) : filteredHistory.length === 0 ? (
-            <p className="text-gray-600 text-center">Belum ada riwayat aksi.</p>
+            <p className="text-gray-600 text-center">
+              Belum ada riwayat aksi.
+            </p>
           ) : (
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredHistory.map((item, index) => (
-                <li key={item.id || index} className="p-4 bg-gray-100 rounded-lg shadow-md">
+                <li
+                  key={item.id || index}
+                  className="p-4 bg-gray-100 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105"
+                >
                   <p
                     className={`font-semibold flex items-center ${
-                      item.action === "Delete" ? "text-red-500" : "text-gray-800"
+                      item.action === "DELETE"
+                        ? "text-red-500"
+                        : "text-gray-800"
                     }`}
                   >
-                    {item.action === "Delete" ? (
+                    {item.action === "DELETE" ? (
                       <Trash className="mr-2" />
                     ) : (
                       <Edit className="mr-2" />
@@ -99,12 +116,12 @@ export default function AdminHistory() {
                     {format(new Date(item.timestamp), "dd MMM yyyy, HH:mm")}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Admin: {item.admin?.name || item.admin?.username || "Unknown Admin"} ({
-                      item.admin?.email || "No Email"
-                    })
+                    Admin:{" "}
+                    {item.adminId?.name || item.adminId?.username || "Unknown Admin"}{" "}
+                    ({item.adminId?.email || "No Email"})
                   </p>
                   <p className="text-sm text-gray-500">
-                    Event: {item.newsEvent?.title || "No Title Available"}
+                    Event: {item.newsEventId?.title || "No Title Available"}
                   </p>
                 </li>
               ))}
