@@ -122,7 +122,7 @@ useEffect(() => {
   return (
     <div className="container mx-auto p-6">
       <header className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-4 flex justify-between items-center rounded-md shadow-lg">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold">Manage News & Events</h1>
       </header>
   
       <main className="mt-8">

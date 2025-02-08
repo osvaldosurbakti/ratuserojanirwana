@@ -54,20 +54,6 @@ export default function AdminHistory() {
       {/* Header */}
       <header className="bg-gray-800 text-white p-4 flex flex-col sm:flex-row justify-between items-center rounded-md shadow-lg">
         <h1 className="text-xl font-bold">Riwayat Aksi Admin</h1>
-        <nav className="mt-2 sm:mt-0 space-x-4">
-          <a
-            href="/superadmin"
-            className="hover:text-blue-300 transition duration-300"
-          >
-            Kembali ke Dashboard
-          </a>
-          <button
-            onClick={handleLogout}
-            className="hover:text-blue-300 transition duration-300"
-          >
-            Logout
-          </button>
-        </nav>
       </header>
 
       {/* Search Input */}
