@@ -4,6 +4,7 @@ import axios from 'axios';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import ScrollToTop from './context/ScrollToTop';
 import Home from './pages/Home';
 import About from './pages/About';
 import Service from './pages/Service';
@@ -47,6 +48,7 @@ function App() {
     <div>
       <Navbar />
       <Header />
+      <ScrollToTop /> {/* Tambahkan di sini */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
