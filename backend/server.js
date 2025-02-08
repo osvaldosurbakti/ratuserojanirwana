@@ -11,24 +11,29 @@ import userRoutes from './routes/userRoutes.js';
 import newsEventRoutes from './routes/newsEventRoutes.js';
 import historyRoutes from './routes/historyRoutes.js';
 
+
 dotenv.config();
 
 const PORT = process.env.PORT || 5001;
-const BASE_URL = process.env.BASE_URL || "http://localhost:5001";
-const API_URL = process.env.API_URL || `${BASE_URL}/api`;
+const DATA_SOURCE = process.env.DATA_SOURCE || 'https://jsonplaceholder.typicode.com/posts';
+
 
 const startServer = async () => {
   try {
     await connectDB();
-    console.log("✅ Database connected successfully");
-
+    if (!process.env.MONGO_URI) {
+      console.error('❌ Missing MONGO_URI in environment variables');
+      process.exit(1);
+    }
+    
     const app = express();
 
     app.use(express.json());
     app.use(cookieParser());
     app.use(cors({
-      origin: ['http://localhost:3000', 'http://localhost:5173'], // Allow both origins      credentials: true,
-    }));
+      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+      credentials: true,
+    }));    
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
@@ -36,18 +41,23 @@ const startServer = async () => {
     app.use(express.static(path.join(__dirname, '../frontend/dist')));
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-    app.get('/', (req, res) => {
-      res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-    });
-
+    
     app.use('/api/auth', authRoutes);
     app.use('/api/users', userRoutes);
     app.use('/api/news-events', newsEventRoutes);
     app.use('/api/history', historyRoutes);
 
+    app.use('/api', (req, res) => {
+      res.status(404).json({ message: 'API route not found' });
+    });
+
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+    });
+
     app.get('/api/data', async (req, res) => {
       try {
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+        const response = await axios.get(DATA_SOURCE);
         res.json(response.data);
       } catch (error) {
         console.error('❌ Error fetching data:', error.message);
@@ -55,6 +65,7 @@ const startServer = async () => {
       }
     });
     
+    app.use('/favicon.ico', (req, res) => res.status(204).end());
 
     app.use((err, req, res, next) => {
       console.error('❌ Error:', err.message);
@@ -68,8 +79,6 @@ const startServer = async () => {
     console.error('❌ Database connection failed:', error.message);
     process.exit(1);
   }
-  console.log("✅ BASE_URL:", BASE_URL);
-  console.log("✅ API_URL:", API_URL);
 };
 
 startServer();
