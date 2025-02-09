@@ -1,6 +1,6 @@
-import NewsEvent from '../models/NewsEvent.js';
-import mongoose from 'mongoose';
-import History from '../models/History.js';
+import NewsEvent from "../models/NewsEvent.js";
+import mongoose from "mongoose";
+import History from "../models/History.js";
 
 // Create a new news/event
 export const createNewsEvent = async (req, res) => {
@@ -8,14 +8,36 @@ export const createNewsEvent = async (req, res) => {
     const { title, description, category, eventDate } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : null;
 
-    if (!title || !description || !category || !eventDate) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!title || title.length < 5 || title.length > 100) {
+      return res.status(400).json({ message: "Title must be between 5 and 100 characters" });
     }
 
-    const newsEvent = new NewsEvent({ title, description, category, eventDate, image });
+    if (!description || description.length < 20) {
+      return res.status(400).json({ message: "Description must be at least 20 characters" });
+    }
+
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
+
+    if (!eventDate || isNaN(Date.parse(eventDate))) {
+      return res.status(400).json({ message: "Invalid event date" });
+    }
+
+    const newsEvent = new NewsEvent({
+      title,
+      description,
+      category,
+      eventDate,
+      image,
+    });
     await newsEvent.save();
 
-    await History.create({ adminId: req.user._id, action: 'CREATE', newsEventId: newsEvent._id });
+    await History.create({
+      adminId: req.user._id,
+      action: "CREATE",
+      newsEventId: newsEvent._id,
+    });
 
     res.status(201).json(newsEvent);
   } catch (error) {
@@ -24,10 +46,22 @@ export const createNewsEvent = async (req, res) => {
   }
 };
 
-// Get all news/events
+
+// Get all news/events with search and category filter
 export const getNewsEvents = async (req, res) => {
   try {
-    const newsEvents = await NewsEvent.find();
+    const { search = "", category = "" } = req.query;
+
+    const filter = {};
+    if (search) {
+      filter.title = { $regex: search, $options: "i" }; // Search by title (case-insensitive)
+    }
+    if (category) {
+      filter.category = category; // Filter by category
+    }
+
+    const newsEvents = await NewsEvent.find(filter).sort({ eventDate: -1 }); // Sort by eventDate (newest first)
+
     res.status(200).json(newsEvents);
   } catch (error) {
     console.error("❌ Error fetching news/events:", error);
@@ -46,36 +80,60 @@ export const updateNewsEvent = async (req, res) => {
       return res.status(400).json({ message: "Invalid News/Event ID" });
     }
 
+    if (!title || title.length < 5 || title.length > 100) {
+      return res.status(400).json({ message: "Title must be between 5 and 100 characters" });
+    }
+
+    if (!description || description.length < 20) {
+      return res.status(400).json({ message: "Description must be at least 20 characters" });
+    }
+
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
+
+    if (!eventDate || isNaN(Date.parse(eventDate))) {
+      return res.status(400).json({ message: "Invalid event date" });
+    }
+
     const existingNewsEvent = await NewsEvent.findById(id);
     if (!existingNewsEvent) {
       return res.status(404).json({ message: "News/Event not found" });
     }
 
-    const updatedFields = { 
-      title, 
-      description, 
-      category, 
-      eventDate, 
-      image: image || existingNewsEvent.image // Gunakan gambar lama jika tidak ada yang baru
+    const updatedFields = {
+      title,
+      description,
+      category,
+      eventDate,
+      image: image || existingNewsEvent.image, // Keep old image if no new one provided
     };
 
-    const updatedNewsEvent = await NewsEvent.findByIdAndUpdate(id, { $set: updatedFields }, { new: true });
+    const updatedNewsEvent = await NewsEvent.findByIdAndUpdate(
+      id,
+      { $set: updatedFields },
+      { new: true }
+    );
 
-    await History.create({ adminId: req.user._id, action: 'UPDATE', newsEventId: id });
+    await History.create({
+      adminId: req.user._id,
+      action: "UPDATE",
+      newsEventId: id,
+    });
 
-    res.status(200).json(updatedNewsEvent);
+    res.status(200).json({ message: "News/Event updated successfully", data: updatedNewsEvent });
   } catch (error) {
     console.error("❌ Error updating news/event:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
+
 // Delete a news/event by ID
 export const deleteNewsEvent = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Ensure req.user is not undefined
     if (!req.user || !req.user._id) {
       console.log("⛔ Unauthorized access. User information is missing.");
       return res.status(401).json({ message: "Unauthorized: User not found" });
@@ -92,8 +150,11 @@ export const deleteNewsEvent = async (req, res) => {
 
     console.log("🗑 News/Event deleted:", deletedNewsEvent);
 
-    // Save deletion history
-    await History.create({ adminId: req.user._id, action: 'DELETE', newsEventId: id });
+    await History.create({
+      adminId: req.user._id,
+      action: "DELETE",
+      newsEventId: id,
+    });
 
     res.status(200).json({ message: "News & Event deleted successfully" });
   } catch (error) {

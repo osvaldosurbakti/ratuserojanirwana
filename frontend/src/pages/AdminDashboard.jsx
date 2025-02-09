@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { getNewsEvents, createNewsEvent, updateNewsEvent, deleteNewsEvent } from "../services/newsEventsService";
+
 
 export default function AdminDashboard() {
+  const formRef = useRef(null); // Tambahkan ref untuk form
   const [newsEvents, setNewsEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredNewsEvents, setFilteredNewsEvents] = useState([]);
@@ -32,18 +35,15 @@ useEffect(() => {
 }, [searchTerm, filterCategory, newsEvents]);
 
 
-  const fetchNewsEvents = async () => {
-    try {
-      const response = await fetch("http://localhost:5001/api/news-events", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error("Failed to fetch");
-      const data = await response.json();
-      setNewsEvents(data);
-    } catch (error) {
-      console.error("Error fetching news events:", error);
-    }
-  };
+const fetchNewsEvents = async () => {
+  try {
+    const data = await getNewsEvents(token);
+    setNewsEvents(data);
+  } catch (error) {
+    console.error("Error fetching news events:", error);
+  }
+};
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -63,65 +63,72 @@ useEffect(() => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (editMode && !formData._id) {
-      console.error("Error: ID is missing in edit mode!");
-      return;
-    }
-
+  
     const form = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (value) form.append(key, value);
     });
-
-    const method = editMode ? "PUT" : "POST";
-    const url = editMode
-      ? `http://localhost:5001/api/news-events/${formData._id}`
-      : "http://localhost:5001/api/news-events";
-
+  
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-      });
-      if (!response.ok) throw new Error("Failed to submit");
-
+      if (editMode) {
+        const confirmUpdate = window.confirm("Apakah yakin ingin update?");
+        if (!confirmUpdate) return;
+  
+        await updateNewsEvent(formData._id, form, token);
+        alert("Perubahan berhasil disimpan!");
+      } else {
+        await createNewsEvent(form, token);
+        alert("Data berhasil ditambahkan!");
+      }
+  
+      // Refresh data dan reset form
       fetchNewsEvents();
-      setFormData({ _id: null, title: "", description: "", category: "news", eventDate: "", image: null });
+      setFormData({
+        _id: null,
+        title: "",
+        description: "",
+        category: "news",
+        eventDate: "",
+        image: null,
+      });
       setPreviewImage(null);
       setEditMode(false);
     } catch (error) {
       console.error("Error submitting form:", error);
+      alert("Terjadi kesalahan saat menyimpan data.");
     }
   };
 
   const handleEdit = (item) => {
     setFormData({
       ...item,
-      eventDate: item.eventDate ? new Date(item.eventDate).toISOString().split("T")[0] : "", // Ubah format tanggal
+      eventDate: item.eventDate ? new Date(item.eventDate).toISOString().split("T")[0] : "", // Format tanggal
     });
-    setPreviewImage(`http://localhost:5001${item.image}`);
-    setEditMode(true);
+    setPreviewImage(`http://localhost:5001${item.image}`); // Tampilkan gambar pratinjau
+    setEditMode(true); // Aktifkan mode edit
+    formRef.current.scrollIntoView({
+      behavior: "smooth", // Gulir dengan animasi
+    });
   };
+  
 
   const handleDelete = async (_id) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    const confirmDelete = window.confirm("Apakah yakin ingin menghapus?");
+    if (!confirmDelete) return;
+  
     try {
-      const response = await fetch(`http://localhost:5001/api/news-events/${_id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error("Failed to delete");
-      fetchNewsEvents();
+      await deleteNewsEvent(_id, token); // Fungsi ini menangani permintaan penghapusan.
+      alert("Penghapusan berhasil!");
+      fetchNewsEvents(); // Panggil fungsi untuk menyegarkan data setelah penghapusan.
     } catch (error) {
-      console.error("Error deleting news event:", error);
+      console.error("Error deleting news/event:", error);
+      alert("Terjadi kesalahan saat menghapus data.");
     }
   };
 
   return (
     <div className="container mx-auto p-6">
-      <header className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-4 flex justify-between items-center rounded-md shadow-lg">
+      <header ref={formRef}className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-4 flex justify-between items-center rounded-md shadow-lg">
         <h1 className="text-2xl font-bold">Manage News & Events</h1>
       </header>
   
@@ -216,7 +223,22 @@ useEffect(() => {
               key={item._id}
               className="bg-white p-6 rounded-lg shadow-md flex justify-between items-center"
             >
+              
               <div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleEdit(item)}
+                  className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-300"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(item._id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300"
+                >
+                  Delete
+                </button>
+              </div>
                 <h3 className="text-xl font-semibold">{item.title}</h3>
                 <p className="text-gray-600">{item.description}</p>
                 <p className="text-sm text-gray-500">
@@ -235,20 +257,7 @@ useEffect(() => {
                   />
                 )}
               </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleEdit(item)}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-300"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(item._id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300"
-                >
-                  Delete
-                </button>
-              </div>
+             
             </li>
           ))}
         </ul>
