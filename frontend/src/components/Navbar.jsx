@@ -4,7 +4,7 @@ import { FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 
 function Navbar() {
-  const { user, logout } = useContext(AuthContext);
+  const { userRole, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ function Navbar() {
 
   // Render admin/superadmin dashboard links
   const renderAdminLinks = () => {
-    if (user?.role === "admin") {
+    if (userRole === "admin") {
       return (
         <li>
           <Link
@@ -56,7 +56,7 @@ function Navbar() {
       );
     }
 
-    if (user?.role === "superadmin") {
+    if (userRole === "superadmin") {
       return (
         <li className="relative">
           <button
@@ -115,7 +115,7 @@ function Navbar() {
 
   // Render authentication buttons
   const renderAuthButtons = () => {
-    return user ? (
+    return userRole ? (
       <li>
         <button
           onClick={handleLogout}
@@ -181,14 +181,14 @@ function Navbar() {
           {/* Mobile Links */}
           <ul className="mt-12 space-y-4 text-lg font-medium px-6">
             {renderNavLinks()}
-            {user && (
+            {userRole && (
               <div className="border-t border-gray-500 pt-4">
-                {user.role === "admin" && (
+                {userRole.role === "admin" && (
                   <Link to="/admindashboard" className="block hover:text-yellow-400" onClick={handleCloseMenu}>
                     Admin Dashboard
                   </Link>
                 )}
-                {user.role === "superadmin" && (
+                {userRole.role === "superadmin" && (
                   <>
                     <Link to="/superadmindashboard" className="block hover:text-yellow-400" onClick={handleCloseMenu}>
                       Superadmin Dashboard

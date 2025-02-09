@@ -23,13 +23,15 @@ export default function Login() {
 
       const data = await response.json();
       if (response.ok) {
-        login(data.token);
+        login(data.token, data.role); // Simpan token dan role
         alert("Login berhasil!");
 
         if (data.role === "admin") {
           navigate("/admindashboard");
         } else if (data.role === "superadmin") {
           navigate("/superadmindashboard");
+        } else {
+          navigate("/"); // Redirect ke halaman utama untuk role lainnya
         }
       } else {
         setErrorMessage(data.message || "Login gagal!");

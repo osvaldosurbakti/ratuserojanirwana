@@ -1,9 +1,8 @@
 import express from 'express';
-import { loginUser } from '../controllers/authController.js'; // Correct import
+import { loginUser } from '../controllers/authController.js';
 
 const router = express.Router();
 
-// Route POST untuk login
-router.post('/login', loginUser); // Ensure it's POST, not GET
+router.post('/login', loginUser);
 
 export default router;

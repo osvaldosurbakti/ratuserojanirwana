@@ -1,43 +1,30 @@
-import { createContext, useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
+import React, { createContext, useState } from 'react';
 
-const AuthContext = createContext(); // Inisialisasi AuthContext
+export const AuthContext = createContext();
 
-function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+const AuthProvider = ({ children }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setUser({ role: decoded.role });
-      } catch (error) {
-        console.error("Token tidak valid:", error);
-        localStorage.removeItem("token");
-        setUser(null);
-      }
-    }
-  }, []);
-
-  const login = (token) => {
-    localStorage.setItem("token", token);
-    const decoded = jwtDecode(token);
-    setUser({ role: decoded.role });
+  const login = (token, role) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('userRole', role);
+    setIsLoggedIn(true);
+    setUserRole(role);
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    setIsLoggedIn(false);
+    setUserRole(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, userRole, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-// Pastikan ekspor dilakukan dengan benar
-export { AuthContext }; 
 export default AuthProvider;
