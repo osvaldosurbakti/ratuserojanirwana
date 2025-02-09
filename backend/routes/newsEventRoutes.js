@@ -5,7 +5,6 @@ import {
   updateNewsEvent,
   deleteNewsEvent,
 } from "../controllers/newsEventController.js";
-import { getHistory } from "../controllers/historyController.js";
 import { protect } from "../middleware/auth.js";
 import { authorize } from "../middleware/authMiddleware.js";
 import multer from "multer";
@@ -101,7 +100,5 @@ router.delete(
   }
 );
 
-// Get history of news/events (Protected route)
-router.get("/history", protect, getHistory);
 
 export default router;

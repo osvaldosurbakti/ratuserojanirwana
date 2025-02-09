@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { loginService } from "../services/authService";
 
 export default function Login() {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -14,30 +15,22 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const data = await loginService(formData); // Panggil service login
+      login(data.token, data.role); // Simpan token dan role di context
+      alert("Login berhasil!");
 
-      const data = await response.json();
-      if (response.ok) {
-        login(data.token, data.role); // Simpan token dan role
-        alert("Login berhasil!");
-
-        if (data.role === "admin") {
-          navigate("/admindashboard");
-        } else if (data.role === "superadmin") {
-          navigate("/superadmindashboard");
-        } else {
-          navigate("/"); // Redirect ke halaman utama untuk role lainnya
-        }
+      // Redirect berdasarkan role
+      if (data.role === "admin") {
+        navigate("/admindashboard");
+      } else if (data.role === "superadmin") {
+        navigate("/superadmindashboard");
       } else {
-        setErrorMessage(data.message || "Login gagal!");
+        navigate("/"); // Redirect ke halaman utama
       }
     } catch (error) {
-      setErrorMessage("Terjadi kesalahan, coba lagi nanti.");
+      setErrorMessage(error.message);
     }
   };
 

@@ -21,14 +21,14 @@ export const protect = async (req, res, next) => {
     console.log("✅ Decoded Token ID:", decoded.userId);
 
     // Find the user based on the decoded user ID
-    req.user = await User.findById(decoded.userId).select('-password');
-    if (!req.user) {
+    req.userRole = await User.findById(decoded.userId).select('-password');
+    if (!req.userRole) {
       console.log("⛔ User not found in database!");
       return res.status(403).json({ message: "Unauthorized: User not found" });
     }
 
     // Log the authenticated user (excluding the password)
-    console.log("✅ Authenticated User:", req.user);
+    console.log("✅ Authenticated User:", req.userRole);
     
     // Move to the next middleware or route handler
     next();
