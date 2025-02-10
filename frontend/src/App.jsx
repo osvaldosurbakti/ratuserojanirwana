@@ -1,52 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Header from './components/Header';
-import ScrollToTop from './context/ScrollToTop';
-import Home from './pages/Home';
-import About from './pages/About';
-import Service from './pages/Service';
-import Contact from './pages/Contact';
-import NewsEvent from './pages/NewsEvent';
-import AdminDashboard from './pages/AdminDashboard';
-import SuperadminDashboard from './pages/SuperadminDashboard';
-import ControlAdmin from './pages/ControlAdmin';
-import History from './pages/History';
-import Login from './pages/Login';
-import ProtectedRoute from './components/ProtectedRoute';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import ScrollToTop from "./context/ScrollToTop";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Service from "./pages/Service";
+import Contact from "./pages/Contact";
+import NewsEvent from "./pages/NewsEvent";
+import AdminDashboard from "./pages/AdminDashboard";
+import SuperadminDashboard from "./pages/SuperadminDashboard";
+import ControlAdmin from "./pages/ControlAdmin";
+import History from "./pages/History";
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { checkTokenExpiry } from "./utils/tokenUtils";
 
 function App() {
+  // Tambahkan state untuk isLoggedIn dan userRole
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('userRole');
-    if (token) {
-      setIsLoggedIn(true);
-      setUserRole(role);
+    try {
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("userRole");
+
+      if (token) {
+        const isTokenExpired = checkTokenExpiry(token); // Periksa token
+        if (!isTokenExpired) {
+          setIsLoggedIn(true); // Tetapkan status login
+          setUserRole(role); // Tetapkan role pengguna
+        } else {
+          handleLogout(); // Logout jika token kadaluarsa
+        }
+      } else {
+        handleLogout(); // Logout jika token tidak ada
+      }
+    } catch (error) {
+      console.error("Error reading localStorage:", error);
+      handleLogout(); // Logout jika ada error membaca localStorage
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
     setIsLoggedIn(false);
     setUserRole(null);
-    navigate('/login');
+    navigate("/login");
   };
-
-  const [data, setData] = useState(null);
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
-
-  useEffect(() => {
-    axios.get(`${BASE_URL}`)
-      .then(response => setData(response.data))
-      .catch(error => console.error("❌ Error fetching data:", error));
-  }, [BASE_URL]);
 
   return (
     <div>
@@ -71,7 +76,7 @@ function App() {
         <Route
           path="/admindashboard"
           element={
-            <ProtectedRoute requiredRole="admin">
+            <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
               <AdminDashboard />
             </ProtectedRoute>
           }

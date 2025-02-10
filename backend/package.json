@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "proxy": "http://localhost:5001",
   "keywords": [],
@@ -14,7 +15,6 @@
   "dependencies": {
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.20.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -24,7 +24,6 @@
     "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
-    "@types/node": "^22.10.10",
-    "typescript": "^5.7.3"
+    "nodemon": "^3.1.9"
   }
 }
