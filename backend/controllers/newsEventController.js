@@ -34,7 +34,7 @@ export const createNewsEvent = async (req, res) => {
     await newsEvent.save();
 
     await History.create({
-      adminId: req.user._id,
+      adminId: req.userRole._id,
       action: "CREATE",
       newsEventId: newsEvent._id,
     });
@@ -116,9 +116,9 @@ export const updateNewsEvent = async (req, res) => {
     );
 
     await History.create({
-      adminId: req.user._id,
+      adminId: req.userRole._id,
       action: "UPDATE",
-      newsEventId: id,
+      newsEventId: newsEvent._id,
     });
 
     res.status(200).json({ message: "News/Event updated successfully", data: updatedNewsEvent });
@@ -134,7 +134,7 @@ export const deleteNewsEvent = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!req.user || !req.user._id) {
+    if (!req.userRole || !req.userRole._id) {
       console.log("⛔ Unauthorized access. User information is missing.");
       return res.status(401).json({ message: "Unauthorized: User not found" });
     }
@@ -151,9 +151,9 @@ export const deleteNewsEvent = async (req, res) => {
     console.log("🗑 News/Event deleted:", deletedNewsEvent);
 
     await History.create({
-      adminId: req.user._id,
+      adminId: req.userRole._id,
       action: "DELETE",
-      newsEventId: id,
+      newsEventId: newsEvent._id,
     });
 
     res.status(200).json({ message: "News & Event deleted successfully" });
